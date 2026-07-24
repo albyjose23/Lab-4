@@ -137,6 +137,11 @@
                 <label>Email</label>
                 <input type="email" id="uemail" required>
             </div>
+
+            <div class="form-group">
+                <label>Phone Number</label>
+                <input type="text" id="uphone" required>
+            </div>
             <div class="form-group">
                 <label>Date of Birth</label>
                 <input type="date" id="udob" required>
@@ -193,18 +198,53 @@
         }
         function showModal() { document.getElementById("successModal").style.display = "flex"; }
         function closeModal() { document.getElementById("successModal").style.display = "none"; }
-        document.getElementById("myRegForm").addEventListener("submit", (e) => {
+        document.getElementById("myRegForm").addEventListener("submit", async (e) => {
+
             e.preventDefault();
-            var nameVal = document.getElementById("uname").value;
-            var passVal = document.getElementById("upass").value;
-            var emailVal = document.getElementById("uemail").value;
-            var dobVal = document.getElementById("udob").value;
-            var cityVal = document.getElementById("ucity").value;
-            localStorage.setItem("storedName", nameVal);
-            localStorage.setItem("storedEmail", emailVal);
-            localStorage.setItem("storedDob", dobVal);
-            localStorage.setItem("storedCity", cityVal);
-            showUserCard(nameVal, emailVal, dobVal, cityVal);
+
+            const nameVal=document.getElementById("uname").value;
+            const passVal=document.getElementById("upass").value;
+            const emailVal=document.getElementById("uemail").value;
+            const phoneVal=document.getElementById("uphone").value;
+            const dobVal=document.getElementById("udob").value;
+            const cityVal=document.getElementById("ucity").value;
+
+            const response=await fetch("http://localhost:3000/api/register",{
+                method:"POST",
+                headers:{"Content-Type":"application/json"},
+                body:JSON.stringify({
+                    name:nameVal,
+                    email:emailVal,
+                    password:passVal,
+                    phone:phoneVal
+                })
+            });
+
+            const data=await response.json();
+
+          if(data.success){
+
+    localStorage.setItem("storedName",nameVal);
+    localStorage.setItem("storedEmail",emailVal);
+    localStorage.setItem("storedDob",dobVal);
+    localStorage.setItem("storedCity",cityVal);
+
+    showUserCard(nameVal,emailVal,dobVal,cityVal);
+
+    localStorage.removeItem("storedName");
+    localStorage.removeItem("storedEmail");
+    localStorage.removeItem("storedDob");
+    localStorage.removeItem("storedCity");
+
+    alert("Registration Successful!");
+
+    document.getElementById("myRegForm").reset();
+
+
+            }else{
+                alert(data.message);
+            }
+
         });
         const showUserCard = (n, e, d, c) => {
             document.getElementById("outName").innerText = n;
@@ -213,16 +253,6 @@
             document.getElementById("outCity").innerText = c;
             document.getElementById("resultCard").style.display = "block";
         };
-        window.addEventListener("load", () => {
-            var n = localStorage.getItem("storedName");
-            var e = localStorage.getItem("storedEmail");
-            var d = localStorage.getItem("storedDob");
-            var c = localStorage.getItem("storedCity");
-            
-            if(n && e) {
-                showUserCard(n, e, d, c);
-            }
-        });
     </script>
 
 </body>
